@@ -33,9 +33,33 @@ const app = (() => {
     setTimeout(() => el.remove(), 4200);
   }
 
+  // avisos del navegador: notificación push sin apps externas (Permission API)
+  function avisarNavegador(n) {
+    if (!n || !('Notification' in window) || Notification.permission !== 'granted') return;
+    const o = Store.db.orders[0];
+    const aviso = new Notification('Nuevo pedido en la web', {
+      body: o ? `${o.id} — ${o.customer.name} · ${Store.money(o.total)}` : `${n} pedidos nuevos`,
+      tag: 'pedidos-web',
+    });
+    aviso.onclick = () => window.focus();
+  }
+  {
+    const btnAvisos = document.getElementById('btn-avisos');
+    if ('Notification' in window && Notification.permission === 'default') {
+      btnAvisos.hidden = false;
+      btnAvisos.addEventListener('click', () => {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') { btnAvisos.hidden = true; toast('Avisos del navegador activados', 'bell'); }
+          else toast('Avisos bloqueados: actívalos en los permisos del sitio', 'bell');
+        });
+      });
+    }
+  }
+
   // ---------- vista ----------
   viewEl.innerHTML = `
     <div class="view-head">
+      <button class="btn sm" id="btn-avisos" hidden title="Te avisa en este dispositivo cuando entre un pedido de la web">Activar avisos</button>
       <div>
         <h1>Cocina</h1>
         <div class="sub">${new Date().toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })} — los pedidos de la web llegan solos; pasa el dedo cuando el horno encienda.</div>
@@ -115,7 +139,7 @@ const app = (() => {
       const res = await fetch(FUENTE_PEDIDOS, { cache: 'no-store' });
       if (!res.ok) return;
       const n = Store.mergeRemote(await res.json());
-      if (n > 0) toast(`${n} pedido${n > 1 ? 's' : ''} entró${n > 1 ? '' : ''} de la web`, 'receipt');
+      if (n > 0) { avisarNavegador(n); toast(`${n} pedido${n > 1 ? 's' : ''} entró${n > 1 ? '' : ''} de la web`, 'receipt'); }
     } catch { /* sin conexión: sigue con lo local */ }
   }
   sondearRemoto();

@@ -43,18 +43,6 @@ const app = (() => {
     });
     aviso.onclick = () => window.focus();
   }
-  {
-    const btnAvisos = document.getElementById('btn-avisos');
-    if ('Notification' in window && Notification.permission === 'default') {
-      btnAvisos.hidden = false;
-      btnAvisos.addEventListener('click', () => {
-        Notification.requestPermission().then(p => {
-          if (p === 'granted') { btnAvisos.hidden = true; toast('Avisos del navegador activados', 'bell'); }
-          else toast('Avisos bloqueados: actívalos en los permisos del sitio', 'bell');
-        });
-      });
-    }
-  }
 
   // ---------- vista ----------
   viewEl.innerHTML = `
@@ -67,6 +55,19 @@ const app = (() => {
     </div>
     <div class="kpis" id="prod-hoy"></div>
     <div id="tickets"></div>`;
+
+  {
+    const btnAvisos = document.getElementById('btn-avisos');
+    if (btnAvisos && 'Notification' in window && Notification.permission === 'default') {
+      btnAvisos.hidden = false;
+      btnAvisos.addEventListener('click', () => {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') { btnAvisos.hidden = true; toast('Avisos del navegador activados', 'bell'); }
+          else toast('Avisos bloqueados: actívalos en los permisos del sitio', 'bell');
+        });
+      });
+    }
+  }
 
   const TAMLABEL = { P: 'Pequeña', M: 'Mediana', G: 'Grande' };
   const imgRemota = ruta => ruta && ruta.startsWith('http') ? ruta : 'https://shusukegxe.github.io/venta-tortas-caseras/' + ruta;

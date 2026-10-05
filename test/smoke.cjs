@@ -36,6 +36,7 @@ const ok = (cond, msg) => { console.log((cond ? '  OK ' : ' FAIL') + ' ' + msg);
   const dom = new JSDOM(html, {
     runScripts: 'dangerously', url: 'http://localhost/', pretendToBeVisual: true,
     beforeParse(window) {
+      window.Notification = { permission: 'default', requestPermission: async () => 'granted' };
       window.fetch = async () => ({ ok: true, json: async () => remotos });
     },
   });
@@ -44,6 +45,7 @@ const ok = (cond, msg) => { console.log((cond ? '  OK ' : ' FAIL') + ' ' + msg);
   await sleep(700);
 
   // 1. producción del día
+  ok(d.getElementById('btn-avisos') && !d.getElementById('btn-avisos').hidden, 'avisos: botón visible con permiso en default');
   ok(d.querySelectorAll('.kpi').length === 5, 'cocina: 5 KPIs de producción');
   ok(d.getElementById('prod-hoy').textContent.includes('Tortas en cola'), 'cocina: tortas en cola visible');
 

@@ -71,7 +71,7 @@ const app = (() => {
   }
 
   function itemLinea(it) {
-    const tam = it.tam && TAMLABEL[it.tam] ? ` <b>${TAMLABEL[it.tam]}</b>` : '';
+    const tam = it.tam && TAMLABEL[it.tam] && !it.name.includes(TAMLABEL[it.tam]) ? ` <b>${TAMLABEL[it.tam]}</b>` : '';
     const lineas = [`<div class="tk-item">${it.qty}× ${Store.esc(it.name)}${tam} <span class="mono" style="color:var(--text-3)">${Store.money(it.price)}</span></div>`];
     if (it.descripcion) lineas.push(`<div class="tk-desc">${Store.esc(it.descripcion)}</div>`);
     if (it.images && it.images.length) {
